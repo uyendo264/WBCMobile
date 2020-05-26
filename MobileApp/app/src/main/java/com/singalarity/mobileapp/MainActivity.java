@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     }
     public void EncryptandSend() {
         EditText encryptDataText= findViewById(R.id.password_editText);
+        System.out.println("----------------------------");
         String passwordPlaintext=encryptDataText.getText().toString();
 
         String encryptedData=wbcCryption.EncryptWBC(passwordPlaintext);
