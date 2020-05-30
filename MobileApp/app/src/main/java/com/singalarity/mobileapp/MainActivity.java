@@ -12,7 +12,11 @@ import android.widget.TextView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -30,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        wbcCryption = new Cryption();
+        wbcCryption = new Cryption(getApplicationContext());
         wbcCryption.WBCInit();
 
         Button sendDataButton = findViewById(R.id.EncryptAndSend_button);
@@ -39,7 +43,35 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 TextView responseText = findViewById(R.id.Respone_textView);
                 responseText.setText("");
-                EncryptandSend();
+                try {
+                    FileOutputStream fileout=openFileOutput("mytextfile.txt", MODE_PRIVATE);
+                    OutputStreamWriter outputWriter=new OutputStreamWriter(fileout);
+                    outputWriter.write("abcdeffff");
+                    outputWriter.close();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                try {
+                    FileInputStream fileIn=openFileInput("mytextfile.txt");
+                    InputStreamReader InputRead= new InputStreamReader(fileIn);
+
+                    char[] inputBuffer= new char[100];
+                    String s="";
+                    int charRead;
+
+                    while ((charRead=InputRead.read(inputBuffer))>0) {
+                        // char to string conver sion
+                        String readstring=String.copyValueOf(inputBuffer,0,charRead);
+                        s +=readstring;
+                    }
+                    InputRead.close();
+                    System.out.println("resulttttttttt: "+s);
+
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
@@ -64,7 +96,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
             Log.d("TEST", "Exception raised while attempting to create JSON payload for upload.");
-
         }
         OkHttpClient client = new OkHttpClient();
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");

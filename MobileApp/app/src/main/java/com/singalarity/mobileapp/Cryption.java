@@ -1,6 +1,13 @@
 package com.singalarity.mobileapp;
 
+import android.content.Context;
 import android.util.Log;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 import cz.muni.fi.xklinec.whiteboxAES.AES;
 import cz.muni.fi.xklinec.whiteboxAES.WBCStringCryption;
@@ -11,7 +18,10 @@ public class Cryption {
 
     private WBCStringCryption wbcStringEncryption;
     private WBCStringCryption wbcStringDecryption;
-
+    private Context context;
+    public Cryption(Context context){
+        this.context = context;
+    }
     public void WBCInit(){
 
         Generator gEnc = new Generator();
@@ -36,8 +46,31 @@ public class Cryption {
         AES AESenc = gEnc.getAESi();
         AES AESdec = gDec.getAESi();
         this.wbcStringEncryption = new WBCStringCryption(AESenc, true);
-         this.wbcStringDecryption= new WBCStringCryption(AESdec, false);
+        this.wbcStringDecryption= new WBCStringCryption(AESdec, false);
         ///////
+        try{
+            FileOutputStream file = context.openFileOutput("WBCEncryptString", Context.MODE_PRIVATE);
+            ObjectOutputStream out = new ObjectOutputStream(file);
+            out.writeObject(this.wbcStringEncryption);
+            out.close();
+            file.close();
+            System.out.println("Object has been serialized");
+        } catch(IOException e){
+            System.out.println("Message: " + e.getMessage());
+            System.out.println("2. IOException is caught");
+        }
+        WBCStringCryption deseiralizeWBC;
+        try{
+            FileInputStream fi = context.openFileInput("WBCEncryptString");
+            ObjectInputStream in = new ObjectInputStream(fi);
+            deseiralizeWBC = (WBCStringCryption) in.readObject();
+            in.close();
+            fi.close();
+            System.out.println("Real cryption: "+ wbcStringEncryption.getStringCryptionResult("testing crypt") );
+            System.out.println("deserialize cryption: "+ deseiralizeWBC.getStringCryptionResult("testing crypt") );
+        } catch(IOException | ClassNotFoundException e){
+            System.out.println(e.getMessage());
+        }
 
 
     }
